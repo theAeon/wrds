@@ -5,7 +5,7 @@ import sys
 import urllib.parse
 from pathlib import Path
 
-import pandas as pd
+import polars as pl
 import sqlalchemy as sa
 
 from wrds._version import __version_tuple__ as wrds_version
@@ -88,6 +88,7 @@ class Connection(object):
                 pguri,
                 isolation_level="AUTOCOMMIT",
                 connect_args=self._connect_args,
+                execution_options={"stream_results": True}
             )
             self.connection = self.engine.connect()
         except Exception as err:
@@ -466,7 +467,7 @@ ORDER BY 1;
         """
         rows = self.get_row_count(library, table)
         print("Approximately {} rows in {}.{}.".format(rows, library, table))
-        table_info = pd.DataFrame.from_dict(
+        table_info = pl.DataFrame.from_dict(
             self.insp.get_columns(table, schema=library)
         )
         return table_info[["name", "nullable", "type", "comment"]]
@@ -499,52 +500,25 @@ ORDER BY 1;
     def raw_sql(
         self,
         sql,
-        coerce_float=True,
-        date_cols=None,
-        index_col=None,
         params=None,
         chunksize=500000,
-        return_iter=False,
         dtype=None,
-        dtype_backend="numpy_nullable",
     ):
         """
         Queries the database using a raw SQL string.
 
         :param sql: SQL code in string object.
-        :param coerce_float: (optional) boolean, default: True
-            Attempts to convert values of non-string, non-numeric objects
-            to floating point. Can result in loss of precision.
-        :param date_cols: (optional) list or dict, default: None
-            - List of column names to parse as date
-            - Dict of ``{column_name: format string}`` where
-                format string is:
-                  strftime compatible in case of parsing string times or
-                  is one of (D, s, ns, ms, us) in case of parsing
-                    integer timestamps
-            - Dict of ``{column_name: arg dict}``,
-                where the arg dict corresponds to the keyword arguments of
-                  :func:`pandas.to_datetime`
-        :param index_col: (optional) string or list of strings,
-          default: None
-            Column(s) to set as index(MultiIndex)
         :param params: parameters to SQL query, if parameterized.
         :param chunksize: (optional) integer or None default: 500000
             Process query in chunks of this size. Smaller chunksizes can save
             a considerable amount of memory while query is being processed.
             Set to None run query w/o chunking.
-        :param return_iter: (optional) boolean, default:False
-            When chunksize is not None, return an iterator where chunksize
-            number of rows is included in each chunk.
         :param dtype: (optional) Type name or dict of columns
           default: None
             Data type for data or columns. E.g. np.float64 or
             {'a': np.float64, 'b': np.int32, 'c': 'Int64'}.
-        :param dtype_backend: (optional) string
-          default: "numpy_nullable"
-            Allow backend storage type to be changed. e.g. "pyarrow"
 
-        :rtype: pandas.DataFrame or or Iterator[pandas.DataFrame]
+        :rtype: Iterator[polars.DataFrame]
 
 
         Usage ::
@@ -572,24 +546,14 @@ ORDER BY 1;
         """  # noqa
 
         try:
-            df = pd.read_sql_query(
+            return pl.read_database(
                 sql,
                 self.connection,
-                coerce_float=coerce_float,
-                parse_dates=date_cols,
-                index_col=index_col,
-                chunksize=chunksize,
-                params=params,
-                dtype=dtype,
-                dtype_backend=dtype_backend,
+                iter_batches=True,
+                batch_size=chunksize,
+                execute_options={"parameters": params},
+                SchemaOverrides=dtype,
             )
-            if return_iter or chunksize is None:
-                return df
-            else:
-                full_df = pd.DataFrame()
-                for chunk in df:
-                    full_df = pd.concat([full_df, chunk])
-                return full_df
         except sa.exc.ProgrammingError as e:
             raise e
 
@@ -600,10 +564,7 @@ ORDER BY 1;
         rows=-1,
         obs=None,  # Provided for backward compatibility. This is Python, we use rows.
         offset=0,
-        columns=None,
-        coerce_float=True,
-        index_col=None,
-        date_cols=None,
+        columns=None
     ):
         """
         Creates a data frame from an entire table in the database.
@@ -622,22 +583,6 @@ ORDER BY 1;
             An offset of 0 will start selecting from the beginning.
         :param columns: (optional) list or tuple, default: None
             Specifies the columns to be included in the output data frame.
-        :param coerce_float: (optional) boolean, default: True
-            Attempt to convert values to non-string, non-numeric objects
-            to floating point. Can result in loss of precision.
-        :param date_cols: (optional) list or dict, default: None
-            - List of column names to parse as date
-            - Dict of ``{column_name: format string}``
-                where format string is
-                  strftime compatible in case of parsing string times or
-                  is one of (D, s, ns, ms, us) in case of parsing
-                    integer timestamps
-            - Dict of ``{column_name: arg dict}``,
-                where the arg dict corresponds to the keyword arguments of
-                  :func:`pandas.to_datetime`
-        :param index_col: (optional) string or list of strings,
-          default: None
-            Column(s) to set as index(MultiIndex)
 
         :rtype: pandas.DataFrame
 
@@ -677,8 +622,5 @@ ORDER BY 1;
                 )
             )
             return self.raw_sql(
-                sqlstmt,
-                coerce_float=coerce_float,
-                index_col=index_col,
-                date_cols=date_cols,
+                sqlstmt
             )

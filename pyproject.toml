@@ -16,7 +16,7 @@ extend-select = ["I"]
 write_to = "wrds/_version.py"
 
 [project]
-name = "wrds"
+name = "wrds_polars_chunked"
 description = "Access WRDS data through PostgreSQL in Python."
 authors =  [
     {name = "Alex Malek", email = "amalek@wharton.upenn.edu"},
@@ -46,7 +46,7 @@ classifiers = [
 ]
 dependencies = [
     "ipython<=9.8.0",
-    "pandas>=2.2,<2.3",
+    "polars<2",
     "psycopg2-binary>=2.9,<2.10",
     "sqlalchemy>=2,<2.1",
 ]
