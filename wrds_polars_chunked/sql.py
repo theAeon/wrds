@@ -499,7 +499,7 @@ ORDER BY 1;
     def raw_sql(
         self,
         sql,
-        params=None,
+        index_col,
         chunksize=500000,
         dtype=None,
     ):
@@ -507,7 +507,8 @@ ORDER BY 1;
         Queries the database using a raw SQL string.
 
         :param sql: SQL code in string object.
-        :param params: parameters to SQL query, if parameterized.
+        :param index_col: string.
+            Column to set for partition
         :param chunksize: (optional) integer or None default: 500000
             Process query in chunks of this size. Smaller chunksizes can save
             a considerable amount of memory while query is being processed.
@@ -534,7 +535,7 @@ ORDER BY 1;
 
         # Parameterized SQL query
         >>> parm = {'syms': ('A', 'AA', 'AAPL'), 'num_shares': 50000}
-        >>> data = db.raw_sql('select * from taqmsec.ctm_20030910 where sym_root in %(syms)s and size > %(num_shares)s', params=parm)
+        >>> data = db.raw_sql('select * from taqmsec.ctm_20030910 where sym_root in %(syms)s and size > %(num_shares)s')
         >>> data.head()
                   date           time_m ex sym_root sym_suffix tr_scond      size   price tr_stopind tr_corr     tr_seqnum tr_source tr_rf
             2003-09-10  11:02:09.485000  T        A       None     None  211400.0  25.350          N      00  1.929952e+15         C  None
@@ -545,12 +546,11 @@ ORDER BY 1;
         """  # noqa
 
         try:
-            return pl.read_database(
+            return pl.read_database_uri(
                 sql,
-                self.connection,
-                iter_batches=True,
-                batch_size=chunksize,
-                execute_options={"parameters": params},
+                self.connection.engine.url.render_as_string(hide_password=False),
+                partition_on=index_col,
+                partition_range=chunksize,
                 schema_overrides=dtype,
             )
         except sa.exc.ProgrammingError as e:
@@ -560,17 +560,19 @@ ORDER BY 1;
         self,
         library,
         table,
+        index_col,
         rows=-1,
         obs=None,  # Provided for backward compatibility. This is Python, we use rows.
         offset=0,
-        columns=None
+        columns=None,
     ):
         """
         Creates a data frame from an entire table in the database.
 
         :param sql: SQL code in string object.
         :param library: Postgres schema name.
-
+        :param index_col: (optional) string,
+             Column(s) to set as partition.
         :param rows: (optional) int, default: -1
             Specifies the number of rows to pull from the table.
             An integer less than 0 will return the entire table.
@@ -621,5 +623,6 @@ ORDER BY 1;
                 )
             )
             return self.raw_sql(
-                sqlstmt
+                sqlstmt,
+                index_col=index_col
             )
