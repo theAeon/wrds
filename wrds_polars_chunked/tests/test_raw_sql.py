@@ -15,7 +15,7 @@ def test_rawsql_takes_unparameterized_sql(mock_connection):
                 iter_batches=True,
                 batch_size=500000,
                 execute_options={"parameters": None},
-                SchemaOverrides=None,
+                schema_overrides=None,
             )
 
 
@@ -37,5 +37,5 @@ def test_rawsql_takes_parameterized_sql(mock_connection):
                 iter_batches=True,
                 batch_size=500000,
                 execute_options={"parameters": "pg_stat_activity"},
-                SchemaOverrides=None,
+                schema_overrides=None,
             )

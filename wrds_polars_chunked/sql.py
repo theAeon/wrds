@@ -551,7 +551,7 @@ ORDER BY 1;
                 iter_batches=True,
                 batch_size=chunksize,
                 execute_options={"parameters": params},
-                SchemaOverrides=dtype,
+                schema_overrides=dtype,
             )
         except sa.exc.ProgrammingError as e:
             raise e
