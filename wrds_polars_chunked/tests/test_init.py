@@ -16,7 +16,7 @@ def test_init_calls_sqlalchemy_create_engine_defaults():
         )
         mock_sa.create_engine.assert_called_with(
             connstring,
-            isolation_level="AUTOCOMMIT",
+            execution_options={'stream_results': True},
             connect_args={"sslmode": "require", "application_name": wrds_polars_chunked.sql.appname},
         )
 
@@ -36,7 +36,7 @@ def test_init_calls_sqlalchemy_create_engine_custom():
         wrds_polars_chunked.Connection(wrds_username=username)
         mock_sa.create_engine.assert_called_with(
             connstring,
-            isolation_level="AUTOCOMMIT",
+            execution_options={'stream_results': True},
             connect_args={"sslmode": "require", "application_name": wrds_polars_chunked.sql.appname},
         )
 

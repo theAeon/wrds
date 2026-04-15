@@ -51,5 +51,4 @@ def test_connect_calls_sqlalchemy_create_engine_on_exception(mock_connection):
             # Check that the last call (third attempt) uses the correct connection string
             last_call_args = mock_sa.create_engine.call_args_list[-1]
             assert last_call_args[0][0] == connstring
-            assert last_call_args[1]["isolation_level"] == "AUTOCOMMIT"
             assert last_call_args[1]["connect_args"]["sslmode"] == "require"
