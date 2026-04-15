@@ -499,7 +499,7 @@ ORDER BY 1;
     def raw_sql(
         self,
         sql,
-        index_col,
+        index_col = None,
         num_chunk=500,
         dtype=None,
     ):
@@ -507,7 +507,8 @@ ORDER BY 1;
         Queries the database using a raw SQL string.
 
         :param sql: SQL code in string object.
-        :param index_col: string.
+        :param index_col: (optional) string
+          default: None
             Column to set for partition
         :param num_chunk: (optional) integer or None default: 500
             Process query in this number of chunks. Larger num_chunk can save
@@ -559,7 +560,7 @@ ORDER BY 1;
         self,
         library,
         table,
-        index_col,
+        index_col = None,
         rows=-1,
         obs=None,  # Provided for backward compatibility. This is Python, we use rows.
         offset=0,

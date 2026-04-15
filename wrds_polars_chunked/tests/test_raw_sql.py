@@ -12,7 +12,7 @@ def test_rawsql_takes_unparameterized_sql(mock_connection):
             mock_pl.read_database_uri.assert_called_once_with(
                 sql,
                 mock_connection.connection.engine.url.render_as_string(),
-                partition_on="idx",
+                partition_on=None,
                 partition_num=500,
                 schema_overrides=None,
             )
