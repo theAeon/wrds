@@ -86,7 +86,6 @@ class Connection(object):
         try:
             self.engine = sa.create_engine(
                 pguri,
-                isolation_level="AUTOCOMMIT",
                 connect_args=self._connect_args,
                 execution_options={"stream_results": True}
             )
