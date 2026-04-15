@@ -500,7 +500,7 @@ ORDER BY 1;
         self,
         sql,
         index_col,
-        chunksize=500000,
+        num_chunk=500,
         dtype=None,
     ):
         """
@@ -509,10 +509,9 @@ ORDER BY 1;
         :param sql: SQL code in string object.
         :param index_col: string.
             Column to set for partition
-        :param chunksize: (optional) integer or None default: 500000
-            Process query in chunks of this size. Smaller chunksizes can save
+        :param num_chunk: (optional) integer or None default: 500
+            Process query in this number of chunks. Larger num_chunk can save
             a considerable amount of memory while query is being processed.
-            Set to None run query w/o chunking.
         :param dtype: (optional) Type name or dict of columns
           default: None
             Data type for data or columns. E.g. np.float64 or
@@ -550,7 +549,7 @@ ORDER BY 1;
                 sql,
                 self.connection.engine.url.render_as_string(hide_password=False),
                 partition_on=index_col,
-                partition_range=chunksize,
+                partition_num=num_chunk,
                 schema_overrides=dtype,
             )
         except sa.exc.ProgrammingError as e:

@@ -13,6 +13,6 @@ def test_rawsql_takes_unparameterized_sql(mock_connection):
                 sql,
                 mock_connection.connection.engine.url.render_as_string(),
                 partition_on="idx",
-                partition_range=500000,
+                partition_num=500,
                 schema_overrides=None,
             )
