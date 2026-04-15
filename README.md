@@ -47,8 +47,8 @@ For detailed information on use of the module, please see [Querying WRDS Data us
 A quick tutorial:
 
 ```
-In [1]: import wrds
-In [2]: db = wrds.Connection()
+In [1]: import wrds_polars_chunked
+In [2]: db = wrds_polars_chunked.Connection()
 Enter your credentials.
 Username: <your_username>
 Password: <your_password>
@@ -75,7 +75,7 @@ In [7]: stocknames.head()
 
 In [7]: db.close()  # Close the connection to the database.
 
-In [8]: with wrds.Connection() as db:  # You can use a context manager
+In [8]: with wrds_polars_chunked.Connection() as db:  # You can use a context manager
    ...:     stocknames = db.get_table(library='crsp', table='stocknames', rows=10)
    ...: stocknames.head()
    permno  permco      namedt   nameenddt     cusip    ncusip ticker  \

@@ -5,11 +5,11 @@ import pytest
 
 @pytest.fixture
 def mock_connection():
-    """Create a mock wrds.Connection instance for testing."""
-    import wrds
+    """Create a mock wrds_polars_chunked.Connection instance for testing."""
+    import wrds_polars_chunked
 
-    conn = wrds.Connection(autoconnect=False)
-    conn._hostname = "wrds.test.private"
+    conn = wrds_polars_chunked.Connection(autoconnect=False)
+    conn._hostname = "wrds_polars_chunked.test.private"
     conn._port = 12345
     conn._username = "faketestusername"
     conn._password = "faketestuserpass"

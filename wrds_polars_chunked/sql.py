@@ -8,7 +8,7 @@ from pathlib import Path
 import polars as pl
 import sqlalchemy as sa
 
-from wrds._version import __version_tuple__ as wrds_version
+from wrds_polars_chunked._version import __version_tuple__ as wrds_version
 
 appname = "{0} python {1}.{2}.{3}/wrds".format(
     sys.platform, wrds_version[0], wrds_version[1], wrds_version[2]
@@ -54,7 +54,7 @@ class Connection(object):
         :return: None
 
         Usage::
-        >>> db = wrds.Connection()
+        >>> db = wrds_polars_chunked.Connection()
         Loading library list...
         Done
         """
@@ -202,7 +202,7 @@ ORDER BY 1;
           doesn't have to reenter it if they match.
         Return both the username and the password.
 
-        >>> user,passwd = wrds.Connection.__get_user_credentials()
+        >>> user,passwd = wrds_polars_chunked.Connection.__get_user_credentials()
         """
         if self._username:
             uname = self._username
@@ -230,7 +230,7 @@ ORDER BY 1;
         This must be handled differently.
 
         Usage:
-        >>> db = wrds.Connection()
+        >>> db = wrds_polars_chunked.Connection()
         >>> db.create_pgpass_file()
         """
         if not self._username or not self._password:

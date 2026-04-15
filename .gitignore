@@ -8,7 +8,7 @@ venv/
 *egg-info*
 *.ipynb
 .ipynb_checkpoints
-wrds.egg-info/
+wrds_polars_chunked.egg-info/
 *.log
 .eggs/
-wrds-py
+wrds_polars_chunked-py

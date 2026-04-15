@@ -13,7 +13,7 @@ norecursedirs = [".git", ".vscode"]
 extend-select = ["I"]
 
 [tool.setuptools_scm]
-write_to = "wrds/_version.py"
+write_to = "wrds_polars_chunked/_version.py"
 
 [project]
 name = "wrds_polars_chunked"

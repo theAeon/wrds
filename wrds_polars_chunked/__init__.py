@@ -6,8 +6,8 @@ WRDS Python Data Access Library
 
 WRDS-Py is a library for extracting data from WRDS data sources and getting it into Pandas.
 
-    >>> import wrds
-    >>> db = wrds.Connection()
+    >>> import wrds_polars_chunked
+    >>> db = wrds_polars_chunked.Connection()
     >>> db.list_libraries()
     ['aha', 'aha_sample', 'ahasamp', 'audit', 'audit_audit_comp', ...]
     >>> db.list_tables(library='crsp')
@@ -26,7 +26,7 @@ WRDS-Py is a library for extracting data from WRDS data sources and getting it i
 
 from datetime import date
 
-__title__ = "wrds-py"
+__title__ = "wrds_polars_chunked-py"
 __author__ = "Wharton Research Data Services"
 __copyright__ = f"2017 - {date.today().year} Wharton Research Data Services"
 

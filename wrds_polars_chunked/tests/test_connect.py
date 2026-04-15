@@ -4,7 +4,7 @@ from unittest import mock
 
 def test_connect_calls_sqlalchemy_engine_connect(mock_connection):
     """Test connect calls sqlalchemy engine connect."""
-    with mock.patch("wrds.sql.sa") as mock_sa:
+    with mock.patch("wrds_polars_chunked.sql.sa") as mock_sa:
         mock_engine = mock.Mock()
         mock_sa.create_engine.return_value = mock_engine
         mock_connection.connect()
@@ -13,7 +13,7 @@ def test_connect_calls_sqlalchemy_engine_connect(mock_connection):
 
 def test_connect_calls_get_user_credentials_on_exception(mock_connection):
     """Test connect calls get_user_credentials when engine.connect raises exception."""
-    with mock.patch("wrds.sql.sa") as mock_sa:
+    with mock.patch("wrds_polars_chunked.sql.sa") as mock_sa:
         with mock.patch("builtins.input", return_value="n"):
             # Make create_engine fail twice, then succeed on third attempt
             mock_sa.create_engine.side_effect = [
@@ -27,9 +27,9 @@ def test_connect_calls_get_user_credentials_on_exception(mock_connection):
 
 def test_connect_calls_sqlalchemy_create_engine_on_exception(mock_connection):
     """Test connect calls sqlalchemy create_engine when engine.connect raises exception."""
-    import wrds
+    import wrds_polars_chunked
 
-    with mock.patch("wrds.sql.sa") as mock_sa:
+    with mock.patch("wrds_polars_chunked.sql.sa") as mock_sa:
         with mock.patch("builtins.input", return_value="n"):
             # Make create_engine fail twice, then succeed on third attempt
             mock_engine = mock.Mock()
@@ -43,7 +43,7 @@ def test_connect_calls_sqlalchemy_create_engine_on_exception(mock_connection):
             connstring = connstring.format(
                 usr=mock_connection._username,
                 pwd=urllib.parse.quote_plus(mock_connection._password),
-                host=wrds.sql.WRDS_POSTGRES_HOST,  # Uses default host after retry
+                host=wrds_polars_chunked.sql.WRDS_POSTGRES_HOST,  # Uses default host after retry
                 port=mock_connection._port,
                 dbname=mock_connection._dbname,
             )
