@@ -117,22 +117,23 @@ class Connection(object):
             if self.engine is None:
                 print(f"Failed to connect {self._username}@{self._hostname}")
             else:
+                pass
                 # Connection successful. Offer to create a .pgpass for the user.
-                print("WRDS recommends setting up a .pgpass file.")
-                do_create_pgpass = ""
-                while do_create_pgpass != "y" and do_create_pgpass != "n":
-                    do_create_pgpass = input("Create .pgpass file now [y/n]?: ")
+                #print("WRDS recommends setting up a .pgpass file.")
+                #do_create_pgpass = ""
+                #while do_create_pgpass != "y" and do_create_pgpass != "n":
+                #    do_create_pgpass = input("Create .pgpass file now [y/n]?: ")
 
-                if do_create_pgpass == "y":
-                    try:
-                        self.create_pgpass_file()
-                        print("Created .pgpass file successfully.")
-                    except Exception:
-                        print("Failed to create .pgpass file.")
-                print(
-                    "You can create this file yourself at any time "
-                    "with the create_pgpass_file() function."
-                )
+                #if do_create_pgpass == "y":
+                #    try:
+                #        self.create_pgpass_file()
+                #        print("Created .pgpass file successfully.")
+                #    except Exception:
+                #        print("Failed to create .pgpass file.")
+                #print(
+                #    "You can create this file yourself at any time "
+                #    "with the create_pgpass_file() function."
+                #)
 
     def close(self):
         """
