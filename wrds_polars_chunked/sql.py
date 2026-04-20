@@ -6,6 +6,8 @@ import urllib.parse
 from pathlib import Path
 
 import polars as pl
+import adbc_driver_postgresql.dbapi as dbapi
+
 import sqlalchemy as sa
 
 from wrds_polars_chunked._version import __version_tuple__ as wrds_version
@@ -500,20 +502,14 @@ ORDER BY 1;
     def raw_sql(
         self,
         sql,
-        index_col = None,
-        num_chunk=500,
+        outname,
         dtype=None,
     ):
         """
         Queries the database using a raw SQL string.
 
         :param sql: SQL code in string object.
-        :param index_col: (optional) string
-          default: None
-            Column to set for partition
-        :param num_chunk: (optional) integer or None default: 500
-            Process query in this number of chunks. Larger num_chunk can save
-            a considerable amount of memory while query is being processed.
+        :param outname: output file name for database dump
         :param dtype: (optional) Type name or dict of columns
           default: None
             Data type for data or columns. E.g. np.float64 or
@@ -545,35 +541,29 @@ ORDER BY 1;
             2003-09-10  16:10:35.522000  T        A       None        B   71900.0  24.918          N      00  1.929970e+15         C  None
             2003-09-10  09:35:20.709000  N       AA       None     None  108100.0  28.200          N      00  1.929947e+15         C  None
         """  # noqa
-
-        try:
-            return pl.read_database_uri(
-                sql,
-                self.connection.engine.url.render_as_string(hide_password=False),
-                partition_on=index_col,
-                partition_num=num_chunk,
-                schema_overrides=dtype,
-            )
-        except sa.exc.ProgrammingError as e:
-            raise e
+        with dbapi.connect(self.connection.engine.url.render_as_string(hide_password=False)) as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(sql)
+                stream = cursor.fetch_arrow()
+                pl.scan_arrow_c_stream(stream).sink_parquet(f"{outname}.parquet")
 
     def get_table(
         self,
         library,
         table,
-        index_col = None,
+        outfile,
         rows=-1,
         obs=None,  # Provided for backward compatibility. This is Python, we use rows.
         offset=0,
         columns=None,
     ):
         """
-        Creates a data frame from an entire table in the database.
+        Writes a data frame from an entire table in the database.
 
         :param sql: SQL code in string object.
         :param library: Postgres schema name.
-        :param index_col: (optional) string,
-             Column(s) to set as partition.
+        :param outfile: string,
+             Database name for file.
         :param rows: (optional) int, default: -1
             Specifies the number of rows to pull from the table.
             An integer less than 0 will return the entire table.
@@ -625,5 +615,5 @@ ORDER BY 1;
             )
             return self.raw_sql(
                 sqlstmt,
-                index_col=index_col
+                outname=outfile
             )
