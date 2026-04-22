@@ -45,7 +45,7 @@ classifiers = [
     "License :: OSI Approved :: BSD License",
 ]
 dependencies = [
-    "ipython<-9.8.0",
+    "ipython<=9.8.0",
     "adbc-driver-postgresql",
     "polars<2",
     "sqlalchemy>=2,<2.1",
